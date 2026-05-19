@@ -1,0 +1,48 @@
+name: Compile KSU Kernel
+
+on:
+  push:
+    branches: [ "lineage-22.2", "master", "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Kernel Source
+        uses: actions/checkout@v4
+
+      - name: Install Build Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git ccache automake flex lzop bison gperf build-essential \
+          zip curl zlib1g-dev g++-multilib libxml2-utils bzip2 libbz2-dev libbz2-1.0 \
+          libghc-bzlib-dev squashfs-tools pngcrush schedtool dpkg-dev liblz4-tool make \
+          optipng maven libssl-dev pwgen libswitch-perl policycoreutils minicom \
+          libxml-sax-base-perl libxml-simple-perl bc libc6-dev-i386 lib32ncurses5-dev \
+          x11proto-core-dev libx11-dev lib32z-dev libgl1-mesa-dev xsltproc unzip
+
+      - name: Download Proton Clang
+        run: |
+          git clone --depth=1 https://github.com/kdrag0n/proton-clang.git $GITHUB_WORKSPACE/proton-clang
+
+      - name: Compile the Kernel
+        run: |
+          export PATH="$GITHUB_WORKSPACE/proton-clang/bin:$PATH"
+          export ARCH=arm64
+          export SUBARCH=arm64
+          
+          # Initialize the custom config we edited
+          make O=out vendor/enchilada_defconfig
+          
+          # Compile
+          make -j$(nproc --all) O=out \
+                                CC=clang \
+                                CROSS_COMPILE=aarch64-linux-gnu- \
+                                CROSS_COMPILE_ARM32=arm-linux-gnueabi-
+
+      - name: Upload Compiled Kernel
+        uses: actions/upload-artifact@v4
+        with:
+          name: OnePlus6-KSU-Image
+          path: out/arch/arm64/boot/Image.gz-dtb
