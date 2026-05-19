@@ -31,7 +31,7 @@ jobs:
           export PATH="$GITHUB_WORKSPACE/proton-clang/bin:$PATH"
           export ARCH=arm64
           export SUBARCH=arm64
-          make O=out vendor/enchilada_defconfig
+          make O=out enchilada_defconfig
           make -j$(nproc --all) O=out \
                                 CC=clang \
                                 CROSS_COMPILE=aarch64-linux-gnu- \
