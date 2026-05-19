@@ -2,18 +2,15 @@ name: Compile KSU Kernel
 
 on:
   push:
-    branches: [ "lineage-22.2", "master", "main" ]
+    branches: [ "**" ] # This forces it to run no matter what branch you are on
   workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04 # Changed to older Ubuntu for perfect 4.9 kernel compatibility!
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout Kernel Source
         uses: actions/checkout@v4
-
-      - name: Clean up old Gitmodules
-        run: rm -f .gitmodules
 
       - name: Install Build Dependencies
         run: |
@@ -34,9 +31,7 @@ jobs:
           export PATH="$GITHUB_WORKSPACE/proton-clang/bin:$PATH"
           export ARCH=arm64
           export SUBARCH=arm64
-          
           make O=out vendor/enchilada_defconfig
-          
           make -j$(nproc --all) O=out \
                                 CC=clang \
                                 CROSS_COMPILE=aarch64-linux-gnu- \
