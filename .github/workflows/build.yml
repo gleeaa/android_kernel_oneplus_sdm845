@@ -7,20 +7,23 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04 # Changed to older Ubuntu for perfect 4.9 kernel compatibility!
     steps:
       - name: Checkout Kernel Source
         uses: actions/checkout@v4
 
-         - name: Install Build Dependencies
+      - name: Clean up old Gitmodules
+        run: rm -f .gitmodules
+
+      - name: Install Build Dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y git ccache automake flex lzop bison gperf build-essential \
           zip curl zlib1g-dev g++-multilib libxml2-utils bzip2 libbz2-dev libbz2-1.0 \
           libghc-bzlib-dev squashfs-tools pngcrush schedtool dpkg-dev liblz4-tool make \
           optipng maven libssl-dev pwgen libswitch-perl policycoreutils minicom \
-          libxml-sax-base-perl libxml-simple-perl bc libc6-dev-i386 libncurses5-dev \
-          x11proto-core-dev libx11-dev libz-dev libgl1-mesa-dev xsltproc unzip
+          libxml-sax-base-perl libxml-simple-perl bc libc6-dev-i386 lib32ncurses5-dev \
+          x11proto-core-dev libx11-dev lib32z-dev libgl1-mesa-dev xsltproc unzip
 
       - name: Download Proton Clang
         run: |
@@ -32,10 +35,8 @@ jobs:
           export ARCH=arm64
           export SUBARCH=arm64
           
-          # Initialize the custom config we edited
           make O=out vendor/enchilada_defconfig
           
-          # Compile
           make -j$(nproc --all) O=out \
                                 CC=clang \
                                 CROSS_COMPILE=aarch64-linux-gnu- \
