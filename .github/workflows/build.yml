@@ -30,13 +30,15 @@ jobs:
           export PATH="$GITHUB_WORKSPACE/proton-clang/bin:$PATH"
           export ARCH=arm64
           export SUBARCH=arm64
+          export HOSTCC=gcc
+          export HOSTCXX=g++
+          export CC=clang
+          export CROSS_COMPILE=aarch64-linux-gnu-
+          export CROSS_COMPILE_ARM32=arm-linux-gnueabi-
+          export CLANG_TRIPLE=aarch64-linux-gnu-
           make O=out enchilada_defconfig
           make O=out prepare headers_install
-          make -j$(nproc --all) O=out \
-            CC=clang \
-            CROSS_COMPILE=aarch64-linux-gnu- \
-            CROSS_COMPILE_ARM32=arm-linux-gnueabi- \
-            CLANG_TRIPLE=aarch64-linux-gnu-
+          make -j$(nproc --all) O=out
 
       - name: Upload Compiled Kernel
         uses: actions/upload-artifact@v4
