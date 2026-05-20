@@ -11,6 +11,7 @@
 #include "linux/gfp.h" // IWYU pragma: keep
 #include "linux/uaccess.h"
 #include "linux/stop_machine.h"
+#include <linux/uaccess.h>
 #include "asm/cacheflush.h"
 #include "asm-generic/fixmap.h"
 
@@ -24,7 +25,9 @@ unsigned long phys_from_virt(unsigned long addr, int *err)
 {
     struct mm_struct *mm = &init_mm;
     pgd_t *pgd;
+#if CONFIG_PGTABLE_LEVELS > 3
     p4d_t *p4d;
+#endif
     pud_t *pud;
     pmd_t *pmd;
     pte_t *pte;
@@ -36,6 +39,7 @@ unsigned long phys_from_virt(unsigned long addr, int *err)
         goto fail;
     pr_debug("pgd of 0x%lx p=0x%lx v=0x%lx", addr, (uintptr_t)pgd, (uintptr_t)pgd_val(*pgd));
 
+#if CONFIG_PGTABLE_LEVELS > 3
     p4d = p4d_offset(pgd, addr);
     if (p4d_none(*p4d) || p4d_bad(*p4d))
         goto fail;
@@ -46,8 +50,10 @@ unsigned long phys_from_virt(unsigned long addr, int *err)
         return __p4d_to_phys(*p4d) + ((addr & ~P4D_MASK));
     }
 #endif
-
     pud = pud_offset(p4d, addr);
+#else
+    pud = pud_offset(pgd, addr);
+#endif
     if (pud_none(*pud) || pud_bad(*pud))
         goto fail;
     pr_debug("pud of 0x%lx p=0x%lx v=0x%lx", addr, (uintptr_t)pud, (uintptr_t)pud_val(*pud));
@@ -147,7 +153,11 @@ static int ksu_patch_text_nosync(void *dst, void *src, size_t len, int flags)
     void *map = set_fixmap_offset(FIX_TEXT_POKE0, phy);
     pr_debug("fixmap addr for patch 0x%lx: 0x%lx\n", p, (unsigned long)map);
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 8, 0)
     ret = (int)copy_to_kernel_nofault(map, src, len);
+#else
+    ret = probe_kernel_write(map, src, len);
+#endif
 
     clear_fixmap(FIX_TEXT_POKE0);
 

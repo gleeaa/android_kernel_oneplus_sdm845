@@ -133,7 +133,7 @@ int ksu_lsm_hook(struct ksu_lsm_hook *hook)
         ret = -ENOENT;
         goto out_unlock;
     }
-    pr_info("target: 0x%lx %pSb\n", (unsigned long)target, target);
+    pr_info("target: 0x%lx %pS\n", (unsigned long)target, target);
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 12, 0)
     if (!scalls_addr) {
@@ -206,7 +206,7 @@ int ksu_lsm_hook(struct ksu_lsm_hook *hook)
             continue;
         }
 
-        pr_info("found slot %ld orig %pSb\n", i, current_origin);
+        pr_info("found slot %ld orig %pS\n", i, current_origin);
 
         if (!hook->offset) {
             selected_entry = entry;
@@ -228,7 +228,7 @@ int ksu_lsm_hook(struct ksu_lsm_hook *hook)
             } else {
                 current_origin = NULL;
             }
-            pr_info("found real slot %ld orig %pSb\n", i, current_origin);
+            pr_info("found real slot %ld orig %pS\n", i, current_origin);
 
             if (current_origin == hook->replacement) {
                 ret = -EALREADY;

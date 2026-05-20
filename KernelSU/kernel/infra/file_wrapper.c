@@ -427,6 +427,14 @@ static const struct dentry_operations ksu_file_wrapper_d_ops = { .d_dname = ksu_
 #define ksu_anon_inode_create_getfile_compat anon_inode_create_getfile
 #elif LINUX_VERSION_CODE >= KERNEL_VERSION(5, 16, 0)
 #define ksu_anon_inode_create_getfile_compat anon_inode_getfile_secure
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(5, 0, 0)
+static struct file *ksu_anon_inode_create_getfile_compat(const char *name,
+							 const struct file_operations *fops,
+							 void *priv, int flags,
+							 const struct inode *context_inode)
+{
+	return anon_inode_getfile(name, fops, priv, flags);
+}
 #else
 // There is no anon_inode_create_getfile before 5.16, but it's not difficult to implement it.
 // https://cs.android.com/android/kernel/superproject/+/common-android12-5.10:common/fs/anon_inodes.c;l=58-125;drc=0d34ce8aa78e38affbb501690bcabec4df88620e
@@ -564,7 +572,7 @@ done:
 
 void __init ksu_file_wrapper_init(void)
 {
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 16, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0) && LINUX_VERSION_CODE < KERNEL_VERSION(5, 16, 0)
     static const struct file_operations tmp = { .owner = THIS_MODULE };
     struct file *dummy = anon_inode_getfile("dummy", &tmp, NULL, 0);
     if (IS_ERR(dummy)) {
