@@ -15,14 +15,11 @@ jobs:
       - name: Install Build Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y git ccache automake flex lzop bison gperf build-essential \
-          zip curl zlib1g-dev g++-multilib libxml2-utils bzip2 libbz2-dev libbz2-1.0 \
-          libghc-bzlib-dev squashfs-tools pngcrush schedtool dpkg-dev liblz4-tool make \
-          optipng maven libssl-dev pwgen libswitch-perl policycoreutils minicom \
-          libxml-sax-base-perl libxml-simple-perl bc libc6-dev-i386 libncurses5-dev \
-          x11proto-core-dev libx11-dev lib32z1 lib32z-dev libgl1-mesa-dev xsltproc unzip \
-          gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu gcc-arm-linux-gnueabi \
-          binutils-arm-linux-gnueabi python3 perl
+          sudo apt-get install -y --no-install-recommends \
+            bc bison build-essential ccache curl flex git libelf-dev libncurses5-dev \
+            libssl-dev python3 perl rsync xz-utils zlib1g-dev \
+            binutils-aarch64-linux-gnu binutils-arm-linux-gnueabi \
+            gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi
 
       - name: Download Proton Clang
         run: |
