@@ -4,10 +4,13 @@
 
 #if defined(__x86_64__)
 typedef sys_call_ptr_t syscall_fn_t;
+#elif defined(__aarch64__)
+typedef asmlinkage long (*syscall_fn_t)(const struct pt_regs *);
+#else
+#error "Unsupported architecture for KSU syscall hook"
 #endif
 
 extern syscall_fn_t *ksu_syscall_table;
-
 // Dispatcher slot number in syscall table
 extern int ksu_dispatcher_nr;
 
