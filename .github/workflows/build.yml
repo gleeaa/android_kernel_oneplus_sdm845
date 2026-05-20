@@ -20,7 +20,9 @@ jobs:
           libghc-bzlib-dev squashfs-tools pngcrush schedtool dpkg-dev liblz4-tool make \
           optipng maven libssl-dev pwgen libswitch-perl policycoreutils minicom \
           libxml-sax-base-perl libxml-simple-perl bc libc6-dev-i386 libncurses5-dev \
-          x11proto-core-dev libx11-dev lib32z1 lib32z-dev libgl1-mesa-dev xsltproc unzip
+          x11proto-core-dev libx11-dev lib32z1 lib32z-dev libgl1-mesa-dev xsltproc unzip \
+          gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu gcc-arm-linux-gnueabi \
+          binutils-arm-linux-gnueabi python3 perl
 
       - name: Download Proton Clang
         run: |
@@ -32,10 +34,12 @@ jobs:
           export ARCH=arm64
           export SUBARCH=arm64
           make O=out enchilada_defconfig
+          make O=out prepare headers_install
           make -j$(nproc --all) O=out \
-                                CC=clang \
-                                CROSS_COMPILE=aarch64-linux-gnu- \
-                                CROSS_COMPILE_ARM32=arm-linux-gnueabi-
+            CC=clang \
+            CROSS_COMPILE=aarch64-linux-gnu- \
+            CROSS_COMPILE_ARM32=arm-linux-gnueabi- \
+            CLANG_TRIPLE=aarch64-linux-gnu-
 
       - name: Upload Compiled Kernel
         uses: actions/upload-artifact@v4
